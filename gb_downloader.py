@@ -66,6 +66,8 @@ def main():
 		if not os.path.exists(output_path):		
 			os.makedirs(output_path)
 		downloader(downloader_from_list(args.listfile), output_path)
+	else:
+		print "Did you provide any input file type? Or did you provided more than one type?"
 
 if __name__ == "__main__":
 	main()
