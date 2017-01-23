@@ -30,6 +30,7 @@ def downloader_from_list(list_file):
 
 def downloader(gi_list, output_path):
 	time_control = 1
+	counter = 0
 	for gi in gi_list:
 		if time_control%5 == 0:	#from 5 to 5 gi's the script pauses for 5 seconds in order to avoid ban from NCBI.
 			time.sleep(5) #time in seconds
@@ -46,6 +47,9 @@ def downloader(gi_list, output_path):
 	for gi in gi_list:
 		if gi + ".gb" not in os.listdir(output_path):
 			output_checker.write(gi + "\n")
+		else:
+			counter=+1
+	return counter, gi_list
 
 def main():
 	parser = argparse.ArgumentParser(description="Retrieves all gb files given an input fasta")
@@ -57,13 +61,21 @@ def main():
 		list_fastas = args.inputfile.split(" ")
 		for infile in list_fastas:
 			output_path = os.path.join(os.path.dirname(os.path.abspath(infile.strip())), args.outputfile)
-			if not os.path.exists(output_path):		
+			if not os.path.exists(output_path):
 				os.makedirs(output_path)
-			downloader(fastaparser(infile.strip()), output_path)
+			counter, gi_list=downloader(fastaparser(infile.strip()), output_path)
+		try:
+			while counter < len(gi_list):
+				unfinished_list = open("List_of_GI_not_retrieved.txt", "r")
+				output_path = os.path.join(os.path.dirname(os.path.abspath(args.listfile.strip())), args.outputfile)
+				downloader(downloader_from_list(unfinished_list), output_path)
+		except NameError:
+			print "List_of_GI_not_retrieved.txt not found."
+
 	elif args.listfile:
 		list_file = args.listfile
 		output_path = os.path.join(os.path.dirname(os.path.abspath(args.listfile.strip())), args.outputfile)
-		if not os.path.exists(output_path):		
+		if not os.path.exists(output_path):
 			os.makedirs(output_path)
 		downloader(downloader_from_list(args.listfile), output_path)
 	else:
