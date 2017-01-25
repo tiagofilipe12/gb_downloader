@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-## Last update: 23/1/2017
+## Last update: 24/1/2017
 ## Author: T.F. Jesus
 ## This script downloads gb files given a fasta file and retrieves all gb files corresponding to the Accession numbers present in fasta
 ## Uses NCBI eutils
@@ -66,9 +66,8 @@ def main():
 			counter, gi_list=downloader(fastaparser(infile.strip()), output_path)
 		try:
 			while counter < len(gi_list):
-				unfinished_list = open("List_of_GI_not_retrieved.txt", "r")
-				output_path = os.path.join(os.path.dirname(os.path.abspath(args.listfile.strip())), args.outputfile)
-				downloader(downloader_from_list(unfinished_list), output_path)
+				output_path = os.path.join(os.path.dirname(os.path.abspath("List_of_GI_not_retrieved.txt")), args.outputfile)
+				downloader(downloader_from_list("List_of_GI_not_retrieved.txt"), output_path)
 		except NameError:
 			print "List_of_GI_not_retrieved.txt not found."
 
