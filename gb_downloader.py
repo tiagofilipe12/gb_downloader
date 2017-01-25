@@ -53,23 +53,22 @@ def downloader(gi_list, output_path):
 
 def main():
 	parser = argparse.ArgumentParser(description="Retrieves all gb files given an input fasta")
-	parser.add_argument('-in','--input', dest='inputfile', help='Provide the input fasta files to parse')
+	parser.add_argument('-in','--input', dest='inputfile', nargs='+', help='Provide the input fasta files to parse')
 	parser.add_argument('-l','--list', dest='listfile', help='instead of providing a fasta to parse, provide a txt file in which each row is a unique GI. One can parse the list provided of the GIs not found to try again... since NCBI rejects some connections.')
 	parser.add_argument('-out','--output', dest='outputfile', required=True, help='Provide the output directory')
 	args = parser.parse_args()
 	if args.inputfile:
-		list_fastas = args.inputfile.split(" ")
+		list_fastas = args.inputfile
 		for infile in list_fastas:
 			output_path = os.path.join(os.path.dirname(os.path.abspath(infile.strip())), args.outputfile)
 			if not os.path.exists(output_path):
 				os.makedirs(output_path)
 			counter, gi_list=downloader(fastaparser(infile.strip()), output_path)
-		try:
-			while counter < len(gi_list):
-				output_path = os.path.join(os.path.dirname(os.path.abspath("List_of_GI_not_retrieved.txt")), args.outputfile)
-				downloader(downloader_from_list("List_of_GI_not_retrieved.txt"), output_path)
-		except NameError:
-			print "List_of_GI_not_retrieved.txt not found."
+#		print counter
+#		print len(gi_list)
+#		while counter < len(gi_list):
+#			output_path = os.path.join(os.path.dirname(os.path.abspath("List_of_GI_not_retrieved.txt")), args.outputfile)
+#			downloader(downloader_from_list("List_of_GI_not_retrieved.txt"), output_path)
 
 	elif args.listfile:
 		list_file = args.listfile
