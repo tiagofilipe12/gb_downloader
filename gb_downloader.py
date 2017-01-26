@@ -7,8 +7,10 @@
 
 import argparse
 import os
+from os.path import isfile, join
 import urllib
 import time
+import shutil
 
 def fastaparser(fasta_file):
 	if_handle=open(fasta_file,'r')
@@ -28,7 +30,7 @@ def downloader_from_list(list_file):
 		gi_list.append(line.strip("\n"))
 	return gi_list	
 
-def downloader(gi_list, output_path):
+def downloader(gi_list, output_path , tag, file_check):
 	time_control = 1
 	counter = 0
 	for gi in gi_list:
@@ -38,18 +40,22 @@ def downloader(gi_list, output_path):
 			print "pausing..." + str(time_control-1) + " GIs already processed!"
 		else:
 			gi_file = gi + ".gb"
-			print gi_file
 			gbfile = urllib.URLopener()
 			gbfile.retrieve("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id="+gi+"&rettype=gb&retmode=text", os.path.join(output_path, gi_file))
 			time_control += 1
 	## Check output directory and retrieves a list of missing GI's
-	output_checker = open("List_of_GI_not_retrieved.txt", 'w')
+	out_file_name=tag + "GI_not_retrieved.txt"
+	if os.path.isfile(out_file_name) and file_check == 0:
+		shutil.move(out_file_name, out_file_name + ".backup")
+		file_check = 1
+	print file_check
+	output_checker = open(out_file_name, 'a')
 	for gi in gi_list:
 		if gi + ".gb" not in os.listdir(output_path):
 			output_checker.write(gi + "\n")
 		else:
 			counter=+1
-	return counter, gi_list
+	return counter, gi_list, file_check
 
 def main():
 	parser = argparse.ArgumentParser(description="Retrieves all gb files given an input fasta")
@@ -57,13 +63,14 @@ def main():
 	parser.add_argument('-l','--list', dest='listfile', help='instead of providing a fasta to parse, provide a txt file in which each row is a unique GI. One can parse the list provided of the GIs not found to try again... since NCBI rejects some connections.')
 	parser.add_argument('-out','--output', dest='outputfile', required=True, help='Provide the output directory')
 	args = parser.parse_args()
+	file_check = 0
 	if args.inputfile:
 		list_fastas = args.inputfile
 		for infile in list_fastas:
 			output_path = os.path.join(os.path.dirname(os.path.abspath(infile.strip())), args.outputfile)
 			if not os.path.exists(output_path):
 				os.makedirs(output_path)
-			counter, gi_list=downloader(fastaparser(infile.strip()), output_path)
+			counter, gi_list, file_check=downloader(fastaparser(infile.strip()), output_path, infile.split(".")[0], file_check)
 #		print counter
 #		print len(gi_list)
 #		while counter < len(gi_list):
@@ -75,7 +82,7 @@ def main():
 		output_path = os.path.join(os.path.dirname(os.path.abspath(args.listfile.strip())), args.outputfile)
 		if not os.path.exists(output_path):
 			os.makedirs(output_path)
-		downloader(downloader_from_list(args.listfile), output_path)
+		downloader(downloader_from_list(args.listfile), output_path, args.listfile.split(".")[0])
 	else:
 		print "Did you provide any input file type? Or did you provided more than one type?"
 
