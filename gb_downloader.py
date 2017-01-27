@@ -82,7 +82,7 @@ def main():
 		output_path = os.path.join(os.path.dirname(os.path.abspath(args.listfile.strip())), args.outputfile)
 		if not os.path.exists(output_path):
 			os.makedirs(output_path)
-		downloader(downloader_from_list(args.listfile), output_path, args.listfile.split(".")[0])
+		downloader(downloader_from_list(args.listfile), output_path, args.listfile.split(".")[0], file_check)
 	else:
 		print "Did you provide any input file type? Or did you provided more than one type?"
 
