@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-## Last update: 27/1/2017
+## Last update: 17/4/2017
 ## Author: T.F. Jesus
 ## This script downloads gb files given a fasta file and retrieves all gb files corresponding to the Accession numbers present in fasta
 ## Uses NCBI eutils
@@ -40,8 +40,9 @@ def downloader(gi_list, output_path , tag, file_type, db_type, export_type):
 		if file_type=="acc":
 			if "." not in gi:
 				gi+=".1"
-		url="https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db="+db_type+"&id="+gi+"&rettype="+export_type+"&retmode=text"
-		try:				
+		url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db" \
+			 "="+db_type+"&id="+gi+"&rettype="+export_type+"&retmode=text"
+		try:
 			gbfile.retrieve(url, os.path.join(output_path, gi_file))
 		except IOError:
 			print "Error: url "+url+" does not exist"
@@ -63,7 +64,11 @@ def main():
 	parser.add_argument('-in','--input', dest='inputfile', nargs='+', help='Provide the input fasta files to parse')
 	parser.add_argument('-l','--list', dest='listfile', help='instead of providing a fasta to parse, provide a txt file in which each row is a unique GI. One can parse the list provided of the GIs not found to try again... since NCBI rejects some connections.')
 	parser.add_argument('-out','--output', dest='outputfile', required=True, help='Provide the output directory')
-	parser.add_argument('-ft','--filetype', dest='filetype', required=True, help='Provide file type. Options acc and gi.')
+	parser.add_argument('-ft','--filetype', dest='filetype',
+						choices=['acc','gi'], required=True, help='Provide ' \
+																 'file ' \
+														   'type. ' \
+												   'Options acc and gi.')
 	parser.add_argument('-db','--dbtype', dest='dbtype', required=True, help='Provide database type. Options e.g. nuccore and protein.')
 	parser.add_argument('-et','--exporttype', dest='exporttype', required=True, help='Provide export file type. Options e.g. fasta and gb.')
 
